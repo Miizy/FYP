@@ -43,8 +43,12 @@ function [tree, path] = rrt_algorithm(start, goal, x_max, y_max, step_size, max_
     path = [];
     if goal_reached
         path = [goal];
+        % Set current_idx to last point added to tree (the goal point)
         current_idx = size(tree, 1);
+        % Stops once current_idx is first point added to tree (the start point)
         while current_idx > 0
+            % get all items in the tree at row current_idx (get point at current_idx)
+            % add that point to front of path array
             path = [tree(current_idx, :); path];
             current_idx = parents(current_idx);
         end
