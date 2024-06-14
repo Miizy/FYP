@@ -39,5 +39,22 @@ classdef PathingUtility
             end
             collision = false;
         end
+        
+        function [nearest_node, nearest_idx] = findNearest(tree, point)
+            % tree - point: Difference between point in the tree and point
+            % 2,2 - Euclidean norm, 2 dimension
+            distances = vecnorm(tree - point, 2, 2);
+            % get index of min distance
+            [~, nearest_idx] = min(distances);
+            % get point with min distance
+            nearest_node = tree(nearest_idx, :);
+        end
+        
+        function new_point = steer(from, to, step_size)
+            direction = to - from;
+            distance = norm(direction);
+            direction = direction / distance;
+            new_point = from + min(step_size, distance) * direction;
+        end
     end
 end
