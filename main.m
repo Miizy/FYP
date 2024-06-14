@@ -9,3 +9,6 @@ close all;
 [tree, path] = rrt_algorithm(start, goal, x_max, y_max, step_size, max_iter, obstacles);
 
 PathingUtility.plot_final_path(path);
+
+length = PathingUtility.calculate_path_length(path);
+disp(['Total path length: ', num2str(length)]);

@@ -9,6 +9,16 @@ classdef PathingUtility
             end
         end
 
+        function total_length = calculate_path_length(path)
+            total_length = 0;
+            for i = 1:size(path, 1) - 1
+                % Calculate the Euclidean distance between consecutive points
+                distance = norm(path(i, :) - path(i + 1, :));
+                % Add the distance to the total length
+                total_length = total_length + distance;
+            end
+        end
+
         function collision = isCollision(from, to, x_max, y_max, obstacles, step_size)
             % Check if the from and to points are within the boundaries of the defined problem space
             if from(1) < 0 || from(1) > x_max || from(2) < 0 || from(2) > y_max || ...
@@ -39,7 +49,7 @@ classdef PathingUtility
             end
             collision = false;
         end
-        
+
         function [nearest_node, nearest_idx] = findNearest(tree, point)
             % tree - point: Difference between point in the tree and point
             % 2,2 - Euclidean norm, 2 dimension
