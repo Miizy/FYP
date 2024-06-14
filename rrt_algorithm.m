@@ -32,7 +32,6 @@ function [tree, path] = rrt_algorithm(start, goal, x_max, y_max, step_size, max_
             
             % Check if goal is reached
             if norm(new_point - goal) < step_size
-                disp('Goal reached!');
                 goal_reached = true;
                 break;
             end
