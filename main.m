@@ -6,7 +6,7 @@ close all;
 [start, goal, x_max, y_max, step_size, max_iter, obstacles] = environment_setup();
 
 % Run RRT algorithm
-[tree, path] = rrt_algorithm(start, goal, x_max, y_max, step_size, max_iter, obstacles);
+[tree, path] = rrt_star_algorithm(start, goal, x_max, y_max, step_size, max_iter, obstacles, step_size);
 
 PathingUtility.plot_final_path(path);
 
