@@ -66,5 +66,11 @@ classdef PathingUtility
             direction = direction / distance;
             new_point = from + min(step_size, distance) * direction;
         end
+    
+        function nearby_idxs = findNearby(tree, point, radius)
+            % Find all nodes in the tree within the given radius of the point
+            distances = sqrt(sum((tree - point).^2, 2));
+            nearby_idxs = find(distances <= radius);
+        end
     end
 end
