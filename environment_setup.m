@@ -1,9 +1,9 @@
 function [start, goal, x_max, y_max, step_size, max_iter, obstacles] = environment_setup()
     % Define problem space
-    x_max = 10;
-    y_max = 10;
+    x_max = 20;
+    y_max = 20;
     start = [0, 0];
-    goal = [9, 9];
+    goal = [19, 19];
     step_size = 0.5;
     max_iter = 1000;
 
