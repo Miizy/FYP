@@ -27,6 +27,12 @@ function [tree, path] = rrt_star_algorithm(start, goal, x_max, y_max, step_size,
             % Add cost of new point to the costs array
             costs = [costs; new_cost];
             
+            % Plot new edge
+            plot([nearest_node(1), new_point(1)], [nearest_node(2), new_point(2)], 'b');
+            % Draw a blue circle on the new point
+            plot(new_point(1), new_point(2), 'bo');
+            drawnow;
+
             % Rewire the tree
             % Find all nodes within the radius
             nearby_idxs = PathingUtility.findNearby(tree, new_point, radius);
@@ -44,12 +50,6 @@ function [tree, path] = rrt_star_algorithm(start, goal, x_max, y_max, step_size,
                     end
                 end
             end
-            
-            % Plot new edge
-            plot([nearest_node(1), new_point(1)], [nearest_node(2), new_point(2)], 'b');
-            % Draw a blue circle on the new point
-            plot(new_point(1), new_point(2), 'bo');
-            drawnow;
             
             % Check if goal is reached
             if norm(new_point - goal) < step_size
