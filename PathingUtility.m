@@ -72,5 +72,10 @@ classdef PathingUtility
             distances = sqrt(sum((tree - point).^2, 2));
             nearby_idxs = find(distances <= radius);
         end
+
+        function cost_to_go = costToGo(node, goal)
+            % Euclidean distance from node to goal
+            cost_to_go = norm(node - goal);
+        end
     end
 end
