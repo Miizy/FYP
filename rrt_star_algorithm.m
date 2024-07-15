@@ -46,7 +46,7 @@ function [tree, path] = rrt_star_algorithm(start, goal, x_max, y_max, step_size,
                         parents(near_idx) = size(tree, 1);
                         costs(near_idx) = new_cost;
                         % Update the plot to show the new edge
-                        plot([new_point(1), near_node(1)], [new_point(2), near_node(2)], 'g'); % Green line for rewired edges
+                        plot([new_point(1), near_node(1)], [new_point(2), near_node(2)], 'Color', [0.7 0.7 0.7], 'LineWidth', 1.5);
                     end
                 end
             end
