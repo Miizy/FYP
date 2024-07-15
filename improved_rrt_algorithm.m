@@ -1,4 +1,12 @@
-function [tree, path] = improved_rrt_algorithm(start, goal, x_max, y_max, step_size, max_iter, obstacles)
+function [tree, path] = improved_rrt_algorithm(environment)
+    start = environment.start;
+    goal = environment.goal; 
+    x_max = environment.x_max;
+    y_max = environment.y_max;
+    step_size = environment.step_size;
+    max_iter = environment.max_iter;
+    obstacles = environment.obstacles;
+    
     % Initialize tree with start node
     tree = start;
     parents = -1;  % Root node has no parent

@@ -3,14 +3,20 @@ clear;
 close all;
     
 % Load environment
-[start, goal, x_max, y_max, step_size, max_iter, obstacles] = environment_setup();
+environment = EnvironmentSetup.select_environment(2);
+environment = EnvironmentSetup.environment_setup(environment);
 
+% Start timer
 mytester = Tester();
 mytester = mytester.start_timer();
 
 % Run RRT algorithm
-[tree, path] = improved_rrt_algorithm(start, goal, x_max, y_max, step_size, max_iter, obstacles);
+[tree, path] = rrt_star_algorithm(environment, 5*environment.step_size);
+%[tree, path] = rrt_algorithm(environment);
+%[tree, path] = improved_rrt_algorithm(environment);
+%[tree, path] = bidirectional_rrt_star_algorithm(environment, 5*environment.step_size);
 
+% Stop timer and display everything
 time_taken = mytester.stop_timer();
 disp(['Time taken: ', num2str(time_taken)]);
 mytester.Tree = tree;
