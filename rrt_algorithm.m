@@ -1,4 +1,8 @@
-function [tree, path] = rrt_algorithm(environment)
+function [tree, path] = rrt_algorithm(environment, sampling_method, sampling_param)
+    if nargin < 3
+        sampling_param = {};
+    end
+
     start = environment.start;
     goal = environment.goal; 
     x_max = environment.x_max;
@@ -15,7 +19,7 @@ function [tree, path] = rrt_algorithm(environment)
     % Main RRT loop
     for i = 1:max_iter
         % Sample random point
-        rand_point = [x_max * rand(), y_max * rand()];
+        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, goal, sampling_param)
         
         % Find nearest node in the tree
         [nearest_node, nearest_idx] = PathingUtility.findNearest(tree, rand_point);

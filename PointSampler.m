@@ -1,8 +1,26 @@
-classdef PathingUtility
+classdef PointSampler
     methods(Static)
+        % Selector for Sampling points
+        function point = samplingMethod(method_number, x_max, y_max, goal, method_params)
+            switch method_number
+                case 1
+                    point = PointSampler.randomSampling(x_max, y_max);
+                case 2
+                    point = PointSampler.goalBiasSampling(x_max, y_max, goal, method_params{:})
+                case 3
+                    point = PointSampler.adaptiveSampling(x_max, y_max, goal, method_params{:})
+                case 4
+                    point = PointSampler.gaussianBiasSampling(x_max, y_max, goal, method_params{:})
+                case 5
+                    point = PointSampler.obstacleBasedSampling(x_max, y_max, goal, method_params{:})
+                otherwise
+                    point = PointSampler.randomSampling(x_max, y_max);
+            end
+        end
+
         %Sample from all space - Free & Obstacles
-        function rand_point = randomSampling(x_max, y_max)
-            rand_point = [x_max * rand(), y_max * rand()];
+        function point = randomSampling(x_max, y_max)
+            point = [x_max * rand(), y_max * rand()];
         end
 
         % Sample a point, a fixed bias to use goal
@@ -15,7 +33,7 @@ classdef PathingUtility
         end
 
         % Sample a point, an adaptive bias to use goal as iteration increase
-        function point = adaptiveSampling(xMax, yMax, goal, iteration, maxIterations)
+        function point = adaptiveSampling(x_max, y_max, goal, iteration, maxIterations)
             bias = min(1, iteration / maxIterations);
             if rand <= bias
                 point = goal;
@@ -25,19 +43,19 @@ classdef PathingUtility
         end
 
         % Samples a point using gaussian distribution centered at goal 
-        function point = gaussianBiasSampling(xMax, yMax, goal, stddev)
+        function point = gaussianBiasSampling(x_max, y_max, goal, stddev)
             x = normrnd(goal(1), stddev);
             y = normrnd(goal(2), stddev);
             
-            % Ensure the sampled point is within the bounds [0, xMax] and [0, yMax]
-            x = min(max(x, 0), xMax);
-            y = min(max(y, 0), yMax);
+            % Ensure the sampled point is within the bounds [0, x_max] and [0, y_max]
+            x = min(max(x, 0), x_max);
+            y = min(max(y, 0), y_max);
             
             point = [x, y];
         end
         
         % Samples a point with a bias towards obstacle boundaries.
-        function point = obstacleBasedSampling(xMax, yMax, goal, obstacles, bias)
+        function point = obstacleBasedSampling(x_max, y_max, goal, obstacles, bias)
             if rand <= bias
                 % Choose a random obstacle
                 numObstacles = size(obstacles, 1);
@@ -61,6 +79,8 @@ classdef PathingUtility
                 point = [x_max * rand(), y_max * rand()];
             end
         end
+
+        
 
     end
 end

@@ -11,10 +11,10 @@ mytester = Tester();
 mytester = mytester.start_timer();
 
 % Run RRT algorithm
-[tree, path] = rrt_star_algorithm(environment, 5*environment.step_size);
-%[tree, path] = rrt_algorithm(environment);
+[tree, path] = rrt_star_algorithm(environment, 5*environment.step_size, 1);
+%[tree, path] = rrt_algorithm(environment, 1);
+%[tree, path] = bidirectional_rrt_star_algorithm(environment, 5*environment.step_size, 1);
 %[tree, path] = improved_rrt_algorithm(environment);
-%[tree, path] = bidirectional_rrt_star_algorithm(environment, 5*environment.step_size);
 
 % Stop timer and display everything
 time_taken = mytester.stop_timer();
