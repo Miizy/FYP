@@ -1,6 +1,6 @@
-function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sampling_method, sampling_param)
+function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sampling_method, sampling_bias)
     if nargin < 4
-        sampling_param = {};
+        sampling_bias = 0;
     end
 
     start = environment.start;
@@ -23,7 +23,7 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sa
     % Main RRT* loop
     for i = 1:max_iter
         % Sample random point
-        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, treeB(1), sampling_param)
+        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, treeB(1,:), obstacles, i, max_iter, sampling_bias);
         
         % Find nearest node in the tree
         [nearest_node, nearest_idx] = PathingUtility.findNearest(treeA, rand_point);

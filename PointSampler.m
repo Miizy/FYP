@@ -1,18 +1,18 @@
 classdef PointSampler
     methods(Static)
         % Selector for Sampling points
-        function point = samplingMethod(method_number, x_max, y_max, goal, method_params)
+        function point = samplingMethod(method_number, x_max, y_max, goal, obstacle, iteration, max_iter, bias)
             switch method_number
                 case 1
                     point = PointSampler.randomSampling(x_max, y_max);
                 case 2
-                    point = PointSampler.goalBiasSampling(x_max, y_max, goal, method_params{:})
+                    point = PointSampler.goalBiasSampling(x_max, y_max, goal, bias);
                 case 3
-                    point = PointSampler.adaptiveSampling(x_max, y_max, goal, method_params{:})
+                    point = PointSampler.adaptiveSampling(x_max, y_max, goal, iteration, max_iter);
                 case 4
-                    point = PointSampler.gaussianBiasSampling(x_max, y_max, goal, method_params{:})
+                    point = PointSampler.gaussianBiasSampling(x_max, y_max, goal, bias);
                 case 5
-                    point = PointSampler.obstacleBasedSampling(x_max, y_max, goal, method_params{:})
+                    point = PointSampler.obstacleBasedSampling(x_max, y_max, goal, obstacle, bias);
                 otherwise
                     point = PointSampler.randomSampling(x_max, y_max);
             end
