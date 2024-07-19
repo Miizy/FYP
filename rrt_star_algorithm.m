@@ -1,4 +1,4 @@
-function [tree, path] = rrt_star_algorithm(environment, radius, sampling_method, sampling_bias)
+function [tree, path] = rrt_star_algorithm(environment, radius, stop_search_on_sol, sampling_method, sampling_bias)
     if nargin < 4
         sampling_bias = 0;
     end
@@ -11,18 +11,24 @@ function [tree, path] = rrt_star_algorithm(environment, radius, sampling_method,
     max_iter = environment.max_iter;
     obstacles = environment.obstacles;
 
-    % Initialize tree with start node
-    tree = start;
-    parents = -1;  % Root node has no parent
-    costs = 0;  % Cost from the start node to the current node
-    goal_reached = false;
+    % Initialize tree with goal node
+    tree = goal;
+    parents = -1;  
+    costs = inf;
+    goal_idx = size(tree, 1);
+    
+    % Add start node to tree
+    tree = [tree; start];
+    costs = [costs; 0];
+    parents = [parents; -1];
 
     % Main RRT* loop
     for i = 1:max_iter
         rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, goal, obstacles, i, max_iter, sampling_bias);
         
         % Find nearest node in the tree
-        [nearest_node, nearest_idx] = PathingUtility.findNearest(tree, rand_point);
+        [nearest_node, nearest_idx] = PathingUtility.findNearest(tree(2:end, :), rand_point);
+        nearest_idx = nearest_idx + 1;
         
         % Steer towards the random point
         new_point = PathingUtility.steer(nearest_node, rand_point, step_size);
@@ -46,9 +52,9 @@ function [tree, path] = rrt_star_algorithm(environment, radius, sampling_method,
 
             % Rewire the tree
             % Find all nodes within the radius
-            nearby_idxs = PathingUtility.findNearby(tree, new_point, radius);
+            nearby_idxs = PathingUtility.findNearby(tree(2:end, :), new_point, radius);
             for j = 1:length(nearby_idxs)
-                near_idx = nearby_idxs(j);
+                near_idx = nearby_idxs(j) + 1;
                 near_node = tree(near_idx, :);
                 % Check if a path through new_point to near_node is shorter
                 new_cost = costs(end) + norm(new_point - near_node);
@@ -58,24 +64,30 @@ function [tree, path] = rrt_star_algorithm(environment, radius, sampling_method,
                         costs(near_idx) = new_cost;
                         % Update the plot to show the new edge
                         plot([new_point(1), near_node(1)], [new_point(2), near_node(2)], 'Color', [0.7 0.7 0.7], 'LineWidth', 1.5);
+                        % Propagate the cost update to the descendants
+                        [tree, costs, parents] = propagate_cost_update(tree, costs, parents, near_idx);
                     end
                 end
             end
             
             % Check if goal is reached
             if norm(new_point - goal) < step_size
-                goal_reached = true;
-                break;
+                new_cost_to_goal = costs(end) + norm(new_point - near_node);
+                if new_cost_to_goal < costs(goal_idx)
+                    parents(goal_idx) = size(tree, 1);
+                    costs(goal_idx) = new_cost_to_goal;
+                end
+                if stop_search_on_sol
+                    break;
+                end
             end
         end
     end
     
     % Trace path back to start
     path = [];
-    if goal_reached
-        path = [goal];
-        % Set current_idx to last point added to tree (the goal point)
-        current_idx = size(tree, 1);
+    if parents(goal_idx) ~= -1
+        current_idx = goal_idx;
         % Stops once current_idx is first point added to tree (the start point)
         while current_idx > 0
             % get all items in the tree at row current_idx (get point at current_idx)
@@ -83,5 +95,15 @@ function [tree, path] = rrt_star_algorithm(environment, radius, sampling_method,
             path = [tree(current_idx, :); path];
             current_idx = parents(current_idx);
         end
+    end
+end
+
+function [tree, costs, parents] = propagate_cost_update(tree, costs, parents, node_idx)
+    children_idxs = find(parents == node_idx);
+    for i = 1:length(children_idxs)
+        child_idx = children_idxs(i);
+        parent_idx = parents(child_idx);
+        costs(child_idx) = costs(parent_idx) + norm(tree(parent_idx, :) - tree(child_idx, :));
+        propagate_cost_update(tree, costs, parents, child_idx);
     end
 end
