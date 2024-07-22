@@ -24,7 +24,7 @@ function [tree, path] = rrt_star_algorithm(environment, radius, stop_search_on_s
 
     % Main RRT* loop
     for i = 1:max_iter
-        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, goal, obstacles, i, max_iter, sampling_bias);
+        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, start, goal, obstacles, i, max_iter, sampling_bias, costs(goal_idx));
         
         % Find nearest node in the tree
         [nearest_node, nearest_idx] = PathingUtility.findNearest(tree(2:end, :), rand_point);

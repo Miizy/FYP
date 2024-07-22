@@ -19,7 +19,7 @@ function [tree, path] = rrt_algorithm(environment, sampling_method, sampling_bia
     % Main RRT loop
     for i = 1:max_iter
         % Sample random point
-        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, goal, obstacles, i, max_iter, sampling_bias);
+        rand_point = PointSampler.samplingMethod(sampling_method, x_max, y_max, start, goal, obstacles, i, max_iter, sampling_bias, inf);
         
         % Find nearest node in the tree
         [nearest_node, nearest_idx] = PathingUtility.findNearest(tree, rand_point);

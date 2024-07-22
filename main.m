@@ -11,9 +11,9 @@ mytester = Tester();
 mytester = mytester.start_timer();
 
 % Run RRT algorithm
-[tree, path] = rrt_star_algorithm(environment, 5*environment.step_size, false, 1, 0.3);
+%[tree, path] = rrt_star_algorithm(environment, 5*environment.step_size, false, 6, 0.3);
 %[tree, path] = rrt_algorithm(environment, 1);
-%[tree, path] = bidirectional_rrt_star_algorithm(environment, 5*environment.step_size, 2, 0.3);
+[tree, path] = bidirectional_rrt_star_algorithm(environment, 5*environment.step_size, false, 6, 0.3);
 %[tree, path] = improved_rrt_algorithm(environment);
 
 % Stop timer and display everything
