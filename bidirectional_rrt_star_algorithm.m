@@ -1,4 +1,4 @@
-function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sampling_method, sampling_bias)
+function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, stop_search_on_sol, sampling_method, sampling_bias)
     if nargin < 4
         sampling_bias = 0;
     end
@@ -18,7 +18,8 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sa
     parentsB = -1;  % Root node has no parent
     costsA = 0;  % Cost from the start node to the current node
     costsB = 0; 
-    goal_reached = false;
+    path = [];
+    best_cost = inf;
 
     % Main RRT* loop
     for i = 1:max_iter
@@ -62,48 +63,51 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, sa
                         costsA(near_idx) = new_cost;
                         % Update the plot to show the new edge
                         plot([new_point(1), near_node(1)], [new_point(2), near_node(2)], 'Color', [0.7 0.7 0.7], 'LineWidth', 1.5);
+                        % Propagate the cost update to the descendants
+                        [treeA, costsA, parentsA] = propagate_cost_update(treeA, costsA, parentsA, near_idx);
                     end
                 end
             end
             
+            % Connect treeA to treeB
             nearest_point = PathingUtility.findNearest(treeB, new_point);
             [sigma_near, c_point_idx] = connectGraphs(treeB, nearest_point, new_point, step_size, costsB, new_cost, x_max, y_max, obstacles);
             if ~isempty(sigma_near)
                 treeA = [treeA; sigma_near];
-                new_cost = new_cost + norm(sigma_near - new_point);
+                new_cost = costsA(end) + norm(sigma_near - new_point);
                 parentsA = [parentsA; numel(parentsA)];
                 costsA = [costsA; new_cost];
                 % Plot new edge
                 plot([new_point(1), sigma_near(1)], [new_point(2), sigma_near(2)], 'b');
                 % Draw a blue circle on the new point
                 plot(sigma_near(1), sigma_near(2), 'bo');
-                goal_reached = true;
-                break;
+                % Update best path
+                if best_cost > new_cost + costsB(c_point_idx)
+                    best_cost = new_cost + costsB(c_point_idx)
+                    path = [sigma_near];
+                    current_idx = size(treeA, 1) - 1;
+                    % Stops once current_idx is first point added to tree (the start point)
+                    while current_idx > 0
+                        % get all items in the tree at row current_idx (get point at current_idx)
+                        % add that point to front of path array
+                        path = [treeA(current_idx, :); path];
+                        current_idx = parentsA(current_idx);
+                    end
+                    current_idx = c_point_idx;
+                    while current_idx > 0 
+                        path = [path; treeB(current_idx, :)];
+                        current_idx = parentsB(current_idx);
+                    end
+                end
+                if stop_search_on_sol
+                    break;
+                end
             end
         end
         [treeA, treeB, parentsA, parentsB, costsA, costsB] = swapTree(treeA, treeB, parentsA, parentsB, costsA, costsB);
     end
     
-    % Trace path back to start
-    path = [];
     tree = [treeA; treeB];
-    if goal_reached
-        path = [sigma_near];
-        % Set current_idx to last point added to tree (the goal point)
-        current_idx = size(treeA, 1);
-        % Stops once current_idx is first point added to tree (the start point)
-        while current_idx > 0
-            % get all items in the tree at row current_idx (get point at current_idx)
-            % add that point to front of path array
-            path = [treeA(current_idx, :); path];
-            current_idx = parentsA(current_idx);
-        end
-        current_idx = c_point_idx;
-        while current_idx > 0 
-            path = [path; treeB(current_idx, :)];
-            current_idx = parentsB(current_idx);
-        end
-    end
 end
 
 function [treeA, treeB, parentsA, parentsB, costsA, costsB] = swapTree(treeA, treeB, parentsA, parentsB, costsA, costsB)
@@ -120,6 +124,8 @@ function [treeA, treeB, parentsA, parentsB, costsA, costsB] = swapTree(treeA, tr
     costsA = tempCost;
 end
 
+% Gets the optimal connection point (sigma_near) between tree and new_point
+% Gets the index of nearest node in the tree that connects to sigma_near
 function [sigma_near, x_near_idx] = connectGraphs(tree, nearest_point, new_point, step_size, costs, new_cost, x_max, y_max, obstacles)
     x_new = PathingUtility.steer(new_point, nearest_point, step_size);
     X_near = PathingUtility.findNearby(tree, x_new, step_size*2);
@@ -147,5 +153,12 @@ function [sigma_near, x_near_idx] = connectGraphs(tree, nearest_point, new_point
     x_near_idx = -1;
 end
 
-function path = generatePath()
+function [tree, costs, parents] = propagate_cost_update(tree, costs, parents, node_idx)
+    children_idxs = find(parents == node_idx);
+    for i = 1:length(children_idxs)
+        child_idx = children_idxs(i);
+        parent_idx = parents(child_idx);
+        costs(child_idx) = costs(parent_idx) + norm(tree(parent_idx, :) - tree(child_idx, :));
+        propagate_cost_update(tree, costs, parents, child_idx);
+    end
 end
