@@ -20,6 +20,7 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, st
     costsB = 0; 
     path = [];
     best_cost = inf;
+    connecting_point = [];
 
     % Main RRT* loop
     for i = 1:max_iter
@@ -73,19 +74,14 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, st
             nearest_point = PathingUtility.findNearest(treeB, new_point);
             [sigma_near, c_point_idx] = connectGraphs(treeB, nearest_point, new_point, step_size, costsB, new_cost, x_max, y_max, obstacles);
             if ~isempty(sigma_near)
-                treeA = [treeA; sigma_near];
+                connecting_point = sigma_near;
                 new_cost = costsA(end) + norm(sigma_near - new_point);
-                parentsA = [parentsA; numel(parentsA)];
-                costsA = [costsA; new_cost];
-                % Plot new edge
-                plot([new_point(1), sigma_near(1)], [new_point(2), sigma_near(2)], 'b');
-                % Draw a blue circle on the new point
-                plot(sigma_near(1), sigma_near(2), 'bo');
+               
                 % Update best path
                 if best_cost > new_cost + costsB(c_point_idx)
                     best_cost = new_cost + costsB(c_point_idx)
                     path = [sigma_near];
-                    current_idx = size(treeA, 1) - 1;
+                    current_idx = size(treeA, 1);
                     % Stops once current_idx is first point added to tree (the start point)
                     while current_idx > 0
                         % get all items in the tree at row current_idx (get point at current_idx)
@@ -107,7 +103,7 @@ function [tree, path] = bidirectional_rrt_star_algorithm(environment, radius, st
         [treeA, treeB, parentsA, parentsB, costsA, costsB] = swapTree(treeA, treeB, parentsA, parentsB, costsA, costsB);
     end
     
-    tree = [treeA; treeB];
+    tree = [treeA; connecting_point; treeB];
 end
 
 function [treeA, treeB, parentsA, parentsB, costsA, costsB] = swapTree(treeA, treeB, parentsA, parentsB, costsA, costsB)
