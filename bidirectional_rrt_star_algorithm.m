@@ -136,7 +136,7 @@ function [sigma_near, x_near_idx] = connectGraphs(tree, nearest_point, new_point
     end
     if ~isempty(L_near)
         L_near_sorted = sortrows(L_near, 1);
-        for i = 1:length(L_near_sorted)
+        for i = 1:size(L_near_sorted, 1)
             [c_near, x_near, sigma_near, x_near_idx] = L_near_sorted{i, 1:4};
             if c_near + PathingUtility.costToGo(new_point, x_near) < c_best
                 if ~PathingUtility.isCollision(new_point, x_near, x_max, y_max, obstacles, step_size)
