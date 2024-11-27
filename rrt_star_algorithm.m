@@ -104,6 +104,6 @@ function [tree, costs, parents] = propagate_cost_update(tree, costs, parents, no
         child_idx = children_idxs(i);
         parent_idx = parents(child_idx);
         costs(child_idx) = costs(parent_idx) + norm(tree(parent_idx, :) - tree(child_idx, :));
-        propagate_cost_update(tree, costs, parents, child_idx);
+        [tree, costs, parents] = propagate_cost_update(tree, costs, parents, child_idx);
     end
 end
